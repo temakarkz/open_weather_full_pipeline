@@ -39,7 +39,7 @@ services:
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
       - OPENWEATHER_API_KEY=your_api_key_here
-    command: bash -c "python main.py && tail -f /dev/null"
+    command: bash -c "python main.py; tail -f /dev/null"
     
   airflow_webserver:
     build: ./airflow
