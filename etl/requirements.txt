@@ -1,0 +1,10 @@
+aiohttp==3.10.10
+asyncio==3.4.3
+pandas==2.2.3
+sqlalchemy==2.0.34
+psycopg2-binary==2.9.9
+python-dotenv==1.0.1
+alembic==1.13.3
+minio==7.2.8
+requests==2.32.3
+apache-airflow==2.9.3
