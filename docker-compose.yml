@@ -27,7 +27,7 @@ services:
   etl:
     build: ./etl
     container_name: etl
-    restart: always
+    restart: "no"
     depends_on:
       - postgres
       - minio
