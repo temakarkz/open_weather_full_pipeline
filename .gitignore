@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Env
+.env
+
+# Docker volumes
+pg_data/
+minio_data/
+airflow/logs/
+airflow_db/
+
+# VSCode / PyCharm
+.vscode/
+.idea/
+
+# Airflow
+airflow/logs/*
+airflow/dags/__pycache__/

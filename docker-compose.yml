@@ -1,56 +1,88 @@
-version: '3.8'
+version: "3.9"
 
 services:
   postgres:
     image: postgres:16
-    container_name: postgres
     environment:
-      POSTGRES_USER: de_user
-      POSTGRES_PASSWORD: de_pass
-      POSTGRES_DB: de_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: weather_dwh
     ports:
       - "5433:5432"
     volumes:
-      - ./postgres/data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U de_user -d de_db"]
-      interval: 10s
-      retries: 5
+      - pg_data:/var/lib/postgresql/data
 
   minio:
     image: minio/minio
-    container_name: minio
     environment:
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
     command: server /data --console-address ":9001"
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - ./minio/data:/data
-
-  airflow:
-    image: apache/airflow:2.9.0
-    container_name: airflow
-    environment:
-      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://de_user:de_pass@postgres:5432/de_db
-    volumes:
-      - ./airflow/dags:/opt/airflow/dags
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
+      - minio_data:/data
 
   etl:
     build: ./etl
     container_name: etl
+    restart: always
     depends_on:
       - postgres
       - minio
-      
-  networks:
-    default:
-      name: de_network
+    volumes:
+      - ./etl:/app
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://user:password@postgres:5432/weather_dwh
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - OPENWEATHER_API_KEY=your_api_key_here
+    command: python main.py
 
+  airflow_webserver:
+    build: ./airflow
+    container_name: airflow_webserver
+    restart: always
+    depends_on:
+      - airflow_postgres
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow_postgres:5432/airflow
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+    command: webserver
+
+  airflow_scheduler:
+    build: ./airflow
+    container_name: airflow_scheduler
+    restart: always
+    depends_on:
+      - airflow_postgres
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow_postgres:5432/airflow
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+    command: scheduler
+
+  airflow_postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - airflow_db:/var/lib/postgresql/data
+
+volumes:
+  pg_data:
+  minio_data:
+  airflow_db:

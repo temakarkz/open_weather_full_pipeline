@@ -7,4 +7,3 @@ python-dotenv==1.0.1
 alembic==1.13.3
 minio==7.2.8
 requests==2.32.3
-apache-airflow==2.9.3
