@@ -1,0 +1,79 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: stage_postgres
+    restart: always
+    env_file: .env.stage
+    ports:
+      - "54332:5432"
+    volumes:
+      - pg_data_stage:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio
+    container_name: stage_minio
+    restart: always
+    env_file: .env.stage
+    command: server /data --console-address ":9001"
+    ports:
+      - "9300:9000"
+      - "9301:9001"
+    volumes:
+      - minio_data_stage:/data
+
+  etl:
+    build: ./etl
+    container_name: stage_etl
+    restart: "no"
+    depends_on:
+      - postgres
+      - minio
+    env_file: .env.stage
+    volumes:
+      - ./etl:/app
+    command: python main.py
+
+  airflow_postgres:
+    image: postgres:16
+    container_name: stage_airflow_db
+    restart: always
+    env_file: .env.stage
+    ports:
+      - "54333:5432"
+    volumes:
+      - airflow_db_stage:/var/lib/postgresql/data
+
+  airflow_webserver:
+    build: ./airflow
+    container_name: stage_airflow_webserver
+    restart: always
+    depends_on:
+      - airflow_postgres
+    env_file: .env.stage
+    ports:
+      - "18091:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+    command: webserver
+
+  airflow_scheduler:
+    build: ./airflow
+    container_name: stage_airflow_scheduler
+    restart: always
+    depends_on:
+      - airflow_postgres
+    env_file: .env.stage
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+    command: scheduler
+
+volumes:
+  pg_data_stage:
+  minio_data_stage:
+  airflow_db_stage:

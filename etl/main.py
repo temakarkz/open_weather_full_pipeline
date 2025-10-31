@@ -1,1 +1,0 @@
-print("ETL container is alive and ready to process data!")

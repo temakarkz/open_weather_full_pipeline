@@ -5,7 +5,9 @@ __pycache__/
 *.pyd
 
 # Env
-.env
+.env.local
+.env.prod
+.env.stage
 
 # Docker volumes
 pg_data/
