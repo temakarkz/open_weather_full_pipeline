@@ -24,7 +24,7 @@ services:
       - minio_data_stage:/data
 
   etl:
-    build: ./etl
+    build: etl
     container_name: stage_etl
     restart: "no"
     depends_on:

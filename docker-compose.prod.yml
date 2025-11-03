@@ -24,7 +24,7 @@ services:
       - minio_data_prod:/data
 
   etl:
-    build: ./etl
+    build: etl
     container_name: prod_etl
     restart: "no"
     depends_on:

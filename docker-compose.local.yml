@@ -24,7 +24,7 @@ services:
       - minio_data_local:/data
 
   etl:
-    build: ./etl
+    build: etl
     container_name: local_etl
     restart: "no"
     depends_on:
