@@ -18,8 +18,8 @@ class ExtractOpenWeather:
         }
 
         city = 'Moscow'
-        lat, lot = cities[city]
-        url_for_moscow = self.request.build_API_URL(lat, lot)
+        lat, lon = cities[city]
+        url_for_moscow = self.request.build_API_URL(lat, lon)
         print(url_for_moscow)
 
         request = requests.get(url_for_moscow)
@@ -42,7 +42,7 @@ class ExtractOpenWeather:
 
         minio = MinioClient()
         minio.fun()
-        res = MinioClient.build_put_object(object_name, body_bytes)
+        res = minio.build_put_object(object_name, body_bytes)
         print(f'res : {res}')
 
 extract = ExtractOpenWeather()

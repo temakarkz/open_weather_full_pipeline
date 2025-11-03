@@ -5,9 +5,7 @@ from dotenv import load_dotenv
 env = os.getenv("ENV", "local")
 env_file = f".env.{env}"
 
-BASE_DIR = Path(__file__).resolve().parents[2]
-
-env_path = BASE_DIR / env_file
+env_path = Path(env_file)
 
 if not env_path.exists():
     raise FileNotFoundError(f"File {env_path} does not exist")

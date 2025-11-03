@@ -24,7 +24,9 @@ services:
       - minio_data_local:/data
 
   etl:
-    build: etl
+    build:
+      context: .
+      dockerfile: ./etl/Dockerfile
     container_name: local_etl
     restart: "no"
     depends_on:
@@ -33,7 +35,7 @@ services:
     env_file: .env.local
     volumes:
       - ./etl:/app/etl
-    command: python main.py
+    command: python -m etl.app.extract_openweather
 
   airflow_postgres:
     image: postgres:16

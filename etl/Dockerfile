@@ -4,12 +4,11 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN apt-get update && apt-get install -y git && apt-get clean
-
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+COPY ../.env.local .env.local
 
 ENV PYTHONPATH=/app
 
-CMD ["python", "main.py"]
+CMD ["python", "-m", "etl.app.extract_openweather"]
