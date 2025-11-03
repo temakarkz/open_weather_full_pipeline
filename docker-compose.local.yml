@@ -32,7 +32,7 @@ services:
       - minio
     env_file: .env.local
     volumes:
-      - ./etl:/app
+      - ./etl:/app/etl
     command: python main.py
 
   airflow_postgres:

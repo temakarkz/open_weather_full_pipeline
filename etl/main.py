@@ -1,4 +1,4 @@
-from app.extract_openweather import extract, ExtractOpenWeather
+from etl.app.extract_openweather import extract, ExtractOpenWeather
 
 
 
